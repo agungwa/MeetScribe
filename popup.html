@@ -43,7 +43,10 @@
       <div class="transcription-section">
         <div class="section-header">
           <h2>Live Transcription</h2>
-          <button id="copyTranscription" class="btn-icon-btn" title="Copy transcription">📋</button>
+          <div class="header-actions">
+            <span class="char-counter" id="charCounter">0 chars</span>
+            <button id="copyTranscription" class="btn-icon-btn" title="Copy transcription">📋</button>
+          </div>
         </div>
         <div class="transcription-box" id="transcriptionBox">
           <div class="placeholder" id="transcriptionPlaceholder">
@@ -57,7 +60,10 @@
       <div class="recommendation-section">
         <div class="section-header">
           <h2>AI Recommendations</h2>
-          <button id="generateAnswer" class="btn-small btn-primary" disabled>Generate Answer</button>
+          <div class="header-actions">
+            <button id="copyRecommendation" class="btn-icon-btn" title="Copy recommendation" style="display: none;">📋</button>
+            <button id="generateAnswer" class="btn-small btn-primary" disabled>Generate Answer</button>
+          </div>
         </div>
         <div class="recommendation-box" id="recommendationBox">
           <div class="placeholder" id="recommendationPlaceholder">

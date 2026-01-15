@@ -39,9 +39,14 @@ function initSpeechRecognition() {
       }
     }
 
-    // Send final transcripts to popup
+    // Send interim results immediately for real-time feedback
+    if (interimTranscript) {
+      sendTranscriptionUpdate(interimTranscript, true); // true = interim
+    }
+
+    // Send final transcripts when ready
     if (finalTranscript) {
-      sendTranscriptionUpdate(finalTranscript.trim());
+      sendTranscriptionUpdate(finalTranscript.trim(), false); // false = final
     }
 
     console.log('Final:', finalTranscript);
@@ -83,11 +88,12 @@ function initSpeechRecognition() {
   return recognition;
 }
 
-function sendTranscriptionUpdate(text) {
+function sendTranscriptionUpdate(text, isInterim = false) {
   // Send message to popup via background script
   chrome.runtime.sendMessage({
     action: 'TRANSCRIPTION_UPDATE',
-    text: text
+    text: text,
+    isInterim: isInterim
   }).catch(error => {
     console.error('Error sending transcription update:', error);
   });

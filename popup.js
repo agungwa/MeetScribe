@@ -15,6 +15,7 @@ const DEFAULT_SETTINGS = {
 
 // Current state
 let currentTranscription = '';
+let interimTranscript = '';
 let isRecording = false;
 let currentSettings = { ...DEFAULT_SETTINGS };
 
@@ -40,11 +41,13 @@ const elements = {
   transcriptionPlaceholder: document.getElementById('transcriptionPlaceholder'),
   transcriptionText: document.getElementById('transcriptionText'),
   copyTranscriptionBtn: document.getElementById('copyTranscription'),
+  charCounter: document.getElementById('charCounter'),
 
   // Recommendations
   recommendationBox: document.getElementById('recommendationBox'),
   recommendationPlaceholder: document.getElementById('recommendationPlaceholder'),
   recommendationText: document.getElementById('recommendationText'),
+  copyRecommendationBtn: document.getElementById('copyRecommendation'),
 
   // Settings
   apiKeyInput: document.getElementById('apiKey'),
@@ -96,6 +99,7 @@ function initializeControls() {
   elements.clearBtn.addEventListener('click', clearTranscription);
   elements.generateAnswerBtn.addEventListener('click', generateAnswer);
   elements.copyTranscriptionBtn.addEventListener('click', copyTranscription);
+  elements.copyRecommendationBtn.addEventListener('click', copyRecommendation);
 
   // Settings
   elements.saveSettingsBtn.addEventListener('click', saveSettings);
@@ -284,10 +288,13 @@ function updateRecordingState(recording) {
 
 function clearTranscription() {
   currentTranscription = '';
+  interimTranscript = '';
   elements.transcriptionText.textContent = '';
   elements.transcriptionPlaceholder.style.display = 'block';
   elements.recommendationText.textContent = '';
   elements.recommendationPlaceholder.style.display = 'block';
+  elements.copyRecommendationBtn.style.display = 'none';
+  updateCharCounter();
   updateGenerateButtonState();
 }
 
@@ -306,24 +313,49 @@ function copyTranscription() {
   });
 }
 
+function copyRecommendation() {
+  const text = elements.recommendationText.textContent;
+  if (!text) return;
+
+  navigator.clipboard.writeText(text).then(() => {
+    const originalText = elements.copyRecommendationBtn.textContent;
+    elements.copyRecommendationBtn.textContent = '✓';
+    setTimeout(() => {
+      elements.copyRecommendationBtn.textContent = originalText;
+    }, 2000);
+  }).catch(err => {
+    console.error('Failed to copy:', err);
+  });
+}
+
 // Message Listener
 function setupMessageListener() {
-  chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  chrome.runtime.onMessage.addListener((message) => {
     if (message.action === 'TRANSCRIPTION_UPDATE') {
-      handleTranscriptionUpdate(message.text);
+      handleTranscriptionUpdate(message.text, message.isInterim);
     }
   });
 }
 
-function handleTranscriptionUpdate(text) {
+function handleTranscriptionUpdate(text, isInterim = false) {
   if (!text) return;
-
-  // Append new text
-  currentTranscription += (currentTranscription ? ' ' : '') + text;
 
   // Update display
   elements.transcriptionPlaceholder.style.display = 'none';
-  elements.transcriptionText.textContent = currentTranscription;
+
+  if (isInterim) {
+    // Store interim text and display it with visual indicator
+    interimTranscript = text;
+    elements.transcriptionText.innerHTML = `${currentTranscription}<span class="interim-text">${interimTranscript}</span>`;
+  } else {
+    // Append final text to permanent transcription
+    currentTranscription += (currentTranscription ? ' ' : '') + text;
+    interimTranscript = '';
+    elements.transcriptionText.textContent = currentTranscription;
+  }
+
+  // Update character counter (only count final transcription)
+  updateCharCounter();
 
   // Scroll to bottom
   elements.transcriptionBox.scrollTop = elements.transcriptionBox.scrollHeight;
@@ -336,6 +368,11 @@ function updateGenerateButtonState() {
   const hasTranscription = currentTranscription.trim().length > 0;
   const hasApiKey = currentSettings.apiKey && currentSettings.apiKey.length > 0;
   elements.generateAnswerBtn.disabled = !(hasTranscription && hasApiKey);
+}
+
+function updateCharCounter() {
+  const charCount = currentTranscription.length;
+  elements.charCounter.textContent = `${charCount.toLocaleString()} char${charCount !== 1 ? 's' : ''}`;
 }
 
 // AI Answer Generation
@@ -365,19 +402,57 @@ async function generateAnswer() {
   } catch (error) {
     console.error('Error generating answer:', error);
     let errorMsg = 'Error generating recommendation. ';
+    let shouldSwitchToSettings = false;
 
     if (error.message.includes('401') || error.message.includes('403')) {
-      errorMsg += 'Invalid API key. Please check your settings.';
-      switchToSettingsTab();
+      errorMsg += '\n\n❌ Invalid API Key\n\n';
+      errorMsg += 'Please check:\n';
+      errorMsg += '• API key is correct in Settings\n';
+      errorMsg += '• Key starts with "AIza"\n';
+      errorMsg += '• Key hasn\'t been revoked\n\n';
+      errorMsg += 'Get a new key at: https://aistudio.google.com/app/apikey';
+      shouldSwitchToSettings = true;
     } else if (error.message.includes('429')) {
-      errorMsg += 'API rate limit exceeded. Please wait a moment and try again.';
-    } else if (error.message.includes('network')) {
-      errorMsg += 'Network error. Please check your connection.';
+      errorMsg += '\n\n⏱️ Rate Limit Exceeded\n\n';
+      errorMsg += 'You\'ve hit the API rate limit.\n\n';
+      errorMsg += 'Solutions:\n';
+      errorMsg += '• Wait 30-60 seconds before retrying\n';
+      errorMsg += '• Use a faster model (2.0 Flash)\n';
+      errorMsg += '• Check your usage at: https://aistudio.google.com/app/apikey\n\n';
+      errorMsg += 'Free tier limits:\n';
+      errorMsg += '• 15 requests/minute\n';
+      errorMsg += '• 1,500 requests/day';
+    } else if (error.message.includes('network') || error.message.includes('Failed to fetch')) {
+      errorMsg += '\n\n🌐 Network Error\n\n';
+      errorMsg += 'Possible issues:\n';
+      errorMsg += '• No internet connection\n';
+      errorMsg += '• Firewall blocking requests\n';
+      errorMsg += '• VPN or proxy interference\n\n';
+      errorMsg += 'Try:\n';
+      errorMsg += '• Check your internet connection\n';
+      errorMsg += '• Disable VPN temporarily\n';
+      errorMsg += '• Try a different network';
+    } else if (error.message.includes('404')) {
+      errorMsg += '\n\n🔍 Model Not Found\n\n';
+      errorMsg += 'The selected AI model may not be available.\n\n';
+      errorMsg += 'Try:\n';
+      errorMsg += '• Select "gemini-flash-latest" in Settings\n';
+      errorMsg += '• Or choose "gemini-2.0-flash"\n\n';
+      shouldSwitchToSettings = true;
     } else {
-      errorMsg += error.message;
+      errorMsg += '\n\n⚠️ Unexpected Error\n\n';
+      errorMsg += `${error.message}\n\n`;
+      errorMsg += 'If this persists:\n';
+      errorMsg += '• Try reloading the extension\n';
+      errorMsg += '• Check the console for details\n';
+      errorMsg += '• Report the issue with your API key redacted';
     }
 
     alert(errorMsg);
+
+    if (shouldSwitchToSettings) {
+      switchToSettingsTab();
+    }
   } finally {
     hideLoading();
   }
@@ -425,6 +500,7 @@ async function callGeminiAPI(prompt) {
 function displayRecommendation(text) {
   elements.recommendationPlaceholder.style.display = 'none';
   elements.recommendationText.textContent = text;
+  elements.copyRecommendationBtn.style.display = 'inline-flex';
 }
 
 function switchToSettingsTab() {
