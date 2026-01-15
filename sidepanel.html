@@ -1,11 +1,10 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MeetScribe</title>
-  <link rel="stylesheet" href="popup.css">
+  <title>MeetScribe - Side Panel</title>
+  <link rel="stylesheet" href="sidepanel.css">
 </head>
 <body>
   <div class="container">
@@ -29,7 +28,7 @@
       <!-- Controls -->
       <div class="controls">
         <button id="startBtn" class="btn btn-primary">
-          <span class="btn-icon">▶</span> Start Recording
+          <span class="btn-icon">▶</span> Start
         </button>
         <button id="stopBtn" class="btn btn-danger" disabled>
           <span class="btn-icon">⏹</span> Stop
@@ -50,7 +49,7 @@
         </div>
         <div class="transcription-box" id="transcriptionBox">
           <div class="placeholder" id="transcriptionPlaceholder">
-            Click "Start Recording" to begin transcribing...
+            Click "Start" to begin transcribing...
           </div>
           <div class="transcription-text" id="transcriptionText"></div>
         </div>
@@ -62,12 +61,12 @@
           <h2>AI Recommendations</h2>
           <div class="header-actions">
             <button id="copyRecommendation" class="btn-icon-btn" title="Copy recommendation" style="display: none;">📋</button>
-            <button id="generateAnswer" class="btn-small btn-primary" disabled>Generate Answer</button>
+            <button id="generateAnswer" class="btn-small btn-primary" disabled>Generate</button>
           </div>
         </div>
         <div class="recommendation-box" id="recommendationBox">
           <div class="placeholder" id="recommendationPlaceholder">
-            AI suggestions will appear here based on the transcription...
+            AI suggestions will appear here...
           </div>
           <div class="recommendation-text" id="recommendationText"></div>
         </div>
@@ -124,7 +123,7 @@
 
         <div class="settings-actions">
           <button id="saveSettings" class="btn btn-primary">Save Settings</button>
-          <button id="resetSettings" class="btn btn-secondary">Reset to Default</button>
+          <button id="resetSettings" class="btn btn-secondary">Reset</button>
         </div>
 
         <div class="settings-status" id="settingsStatus"></div>
@@ -145,6 +144,6 @@
     </div>
   </div>
 
-  <script src="popup.js"></script>
+  <script src="sidepanel.js"></script>
 </body>
 </html>
