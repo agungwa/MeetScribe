@@ -1,0 +1,156 @@
+# ====================
+# OpenSpec Related
+# ====================
+# OpenSpec archives (completed changes are moved here)
+# Comment out the line below if you want to track archived proposals
+# openspec/changes/archive/
+
+# ====================
+# Claude Code Related
+# ====================
+# Claude Code session history
+.claude/
+.claude-code/
+.claude_sessions/
+openspec
+CLAUDE.md
+
+# Claude Code temp files
+*.claude-temp
+.claude-temp/
+
+# ====================
+# Chrome Extension
+# ====================
+# Chrome and Chromium generated files
+*.crx
+*.pem
+
+# Extension build artifacts
+dist/
+build/
+webpack/
+
+# ====================
+# Node.js / NPM
+# ====================
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+yarn.lock
+
+# ====================
+# IDEs and Editors
+# ====================
+# VS Code
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.code-workspace
+
+# JetBrains IDEs (IntelliJ, WebStorm, etc.)
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# Vim
+*.swp
+*.swo
+*~
+.netrwhist
+
+# Emacs
+*~
+\#*\#
+.\#*
+.dir-locals.el
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# ====================
+# OS Generated Files
+# ====================
+# macOS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Windows
+Desktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msix
+*.msm
+*.msp
+*.lnk
+
+# Linux
+*~
+.nfs*
+
+# ====================
+# Project Specific
+# ====================
+# Local configuration overrides
+config.local.*
+.env.local
+*.local
+
+# Test coverage
+coverage/
+.nyc_output/
+
+# Logs
+logs/
+*.log
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.temp
+
+# ====================
+# API Keys and Secrets
+# ====================
+# Never commit API keys
+.env
+*.key
+*.pem
+secrets/
+credentials.json
+
+# ====================
+# Generated Assets
+# ====================
+# If you generate real icons (not placeholders)
+# Uncomment to exclude them if you prefer to regenerate
+# icons/*.png
+# icons/*.jpg
+
+# ====================
+# Documentation Builds
+# ====================
+docs/_build/
+docs/.doctrees/
+site/
+
+# ====================
+# Backup Files
+# ====================
+*.bak
+*.backup
+*~
+*.orig
