@@ -5,7 +5,16 @@ A Chrome extension that provides real-time meeting transcription with AI-powered
 ## Features
 
 - **Real-time Transcription**: Captures audio from your browser tab and transcribes it live using the Web Speech API
+  - See interim results as you speak (gray italic text)
+  - Final transcription appears in black when confirmed
+  - Character counter shows transcription length
 - **AI-Powered Recommendations**: Get intelligent answer suggestions based on meeting context using Gemini AI
+  - One-click generation from your transcription
+  - Copy recommendations to clipboard
+- **Dual Display Modes**: Choose how MeetScribe appears
+  - **Side Panel** (default): Persistent sidebar that doesn't block your meeting content
+  - **Popup**: Traditional extension popup for quick access
+  - Switch between modes anytime in Settings
 - **Customizable Prompts**: Configure custom system prompts or use the built-in default
 - **Multiple AI Models**: Choose between Gemini 2.0 Flash, 2.5 Flash, or 2.5 Pro
 - **Privacy-First**: Transcription happens locally, only the text is sent to Gemini API
@@ -41,12 +50,34 @@ A Chrome extension that provides real-time meeting transcription with AI-powered
 
 1. Click the extension icon in your browser toolbar
 2. Go to the **Settings** tab
-3. Paste your Gemini API key
-4. Optionally, add a custom system prompt (or leave empty for default)
-5. Select your preferred AI model (default: Gemini 2.0 Flash)
-6. Click **Save Settings**
+3. Choose your **Interface Mode** (Side Panel or Popup)
+   - **Side Panel** (recommended): Stays open while you work, doesn't block meeting content
+   - **Popup**: Traditional popup that closes when you click away
+4. Paste your Gemini API key
+5. Optionally, add a custom system prompt (or leave empty for default)
+6. Select your preferred AI model (default: Gemini 2.0 Flash)
+7. Click **Save Settings**
 
 ## Usage
+
+### Display Modes
+
+#### Side Panel Mode (Default)
+Perfect for meetings and long sessions:
+- Click extension icon → Side panel opens on the right
+- Panel stays open as you browse and work
+- Doesn't cover your meeting content
+- Full access to all features (transcription, AI, settings)
+
+#### Popup Mode
+Good for quick checks and configuration:
+- Click extension icon → Popup appears
+- Popup closes when you click away
+- Same great features in a compact format
+
+**To switch modes**: Go to Settings → Select "Interface Mode" → Confirm
+
+### Transcribing Meetings
 
 ### Starting a Transcription
 
@@ -134,10 +165,13 @@ If you leave the custom prompt empty, the extension uses a default prompt optimi
 ```
 meetscribe/
 ├── manifest.json              # Extension configuration
-├── popup.html                 # Main UI
-├── popup.css                  # Styling
-├── popup.js                   # UI logic and API calls
-├── background.js              # Service worker
+├── popup.html                 # Popup UI (compact interface)
+├── popup.css                  # Popup styling
+├── popup.js                   # Popup logic and API calls
+├── sidepanel.html             # Side panel UI (persistent sidebar)
+├── sidepanel.css              # Side panel styling
+├── sidepanel.js               # Side panel logic
+├── background.js              # Service worker (handles display mode)
 ├── content.js                 # Audio capture and transcription
 ├── icons/                     # Extension icons
 │   ├── icon16.png
@@ -221,11 +255,58 @@ For issues, questions, or contributions:
 
 ### Version 1.0.0
 - Initial release
-- Real-time transcription using Web Speech API
+- Real-time transcription using Web Speech API with interim results
 - Gemini AI integration for answer recommendations
-- Custom prompt support
-- Multiple AI model selection
+- Dual display modes: Side Panel (default) and Popup
+- Custom prompt support with fallback to default
+- Multiple AI model selection (2.0 Flash, 2.5 Flash, 2.5 Pro, Flash Latest)
 - Settings persistence with chrome.storage
+- Character counter for transcription
+- Enhanced error messages with actionable suggestions
+- Copy buttons for transcription and AI recommendations
+
+## FAQ
+
+### Which display mode should I use?
+
+**Side Panel (Recommended for meetings)**:
+- ✅ Stays open while you work
+- ✅ Doesn't block meeting content
+- ✅ Perfect for long meetings
+- ✅ Always accessible
+
+**Popup (Good for quick tasks)**:
+- ✅ Compact and unobtrusive
+- ✅ Quick access to settings
+- ✅ Good for short sessions
+- ⚠️ Closes when you click away
+
+### Can I switch between modes?
+
+Yes! Go to Settings → Select "Interface Mode" → Confirm. Your choice is saved and used every time you click the extension icon.
+
+### Does Side Panel work with all websites?
+
+Yes! Side Panel works with any website. It's particularly useful for:
+- Google Meet, Zoom, Microsoft Teams
+- YouTube videos and webinars
+- Any page with audio you want to transcribe
+
+### Why is my transcription gray/italic?
+
+That's the interim (in-progress) transcription. The Web Speech API is still processing it. Once confirmed, it will turn black and become part of the final transcription.
+
+### How do I close the Side Panel?
+
+Click the X button in the top-right corner of the side panel, or use Chrome's side panel menu to close it.
+
+### Why is Side Panel the default?
+
+Side Panel provides a better meeting experience:
+- Keeps transcription visible without blocking content
+- You can see both the meeting and the AI suggestions
+- More space for transcription text
+- Feels like a native browser feature
 
 ---
 
