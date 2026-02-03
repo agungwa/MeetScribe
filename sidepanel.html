@@ -36,6 +36,29 @@
         <button id="clearBtn" class="btn btn-secondary">
           <span class="btn-icon">🗑</span> Clear
         </button>
+        <button id="exportBtn" class="btn btn-secondary">
+          <span class="btn-icon">📥</span> Export
+        </button>
+      </div>
+
+      <!-- Speaker Toolbar -->
+      <div class="speaker-toolbar" id="speakerToolbar">
+        <div class="speaker-selector">
+          <label for="currentSpeaker">Current Speaker:</label>
+          <select id="currentSpeaker" class="form-control speaker-select">
+            <option value="">Select Speaker...</option>
+          </select>
+          <button id="addSpeakerBtn" class="btn-icon-btn" title="Add New Speaker">+</button>
+        </div>
+        <button id="manageSpeakersBtn" class="btn-small btn-secondary">Manage Speakers</button>
+      </div>
+
+      <!-- View Mode Selector -->
+      <div class="view-mode-selector">
+        <label>View:</label>
+        <button class="view-mode-btn active" data-view="turn-by-turn">Turn-by-Turn</button>
+        <button class="view-mode-btn" data-view="grouped">Grouped by Speaker</button>
+        <button class="view-mode-btn" data-view="flat">Flat</button>
       </div>
 
       <!-- Transcription Area -->
@@ -58,12 +81,30 @@
       <!-- AI Recommendations Section -->
       <div class="recommendation-section">
         <div class="section-header">
-          <h2>AI Recommendations</h2>
+          <h2>
+            AI Recommendations
+            <span class="ai-mode-badge" id="aiModeBadge">Manual</span>
+          </h2>
           <div class="header-actions">
             <button id="copyRecommendation" class="btn-icon-btn" title="Copy recommendation" style="display: none;">📋</button>
             <button id="generateAnswer" class="btn-small btn-primary" disabled>Generate</button>
           </div>
         </div>
+
+        <!-- Auto-AI Status -->
+        <div class="auto-ai-status" id="autoAiStatus" style="display: none;">
+          <span class="status-indicator-small"></span>
+          <span id="autoAiStatusText">Auto-AI active (interval: 60s)</span>
+        </div>
+
+        <!-- Recommendation Type Tabs -->
+        <div class="recommendation-tabs" id="recommendationTabs">
+          <button class="rec-tab-btn active" data-type="answer">Answer</button>
+          <button class="rec-tab-btn" data-type="summary">Summary</button>
+          <button class="rec-tab-btn" data-type="followup">Follow-up</button>
+          <button class="rec-tab-btn" data-type="analysis">Analysis</button>
+        </div>
+
         <div class="recommendation-box" id="recommendationBox">
           <div class="placeholder" id="recommendationPlaceholder">
             AI suggestions will appear here...
@@ -75,6 +116,7 @@
 
     <!-- Settings Tab -->
     <div class="tab-content" id="settingsTab">
+      <!-- Display Mode -->
       <div class="settings-section">
         <h2>Display Mode</h2>
         <div class="form-group">
@@ -89,6 +131,73 @@
         </div>
       </div>
 
+      <!-- Transcription Settings -->
+      <div class="settings-section">
+        <h2>Transcription</h2>
+
+        <div class="form-group">
+          <label for="transcriptionMode">Transcription Mode</label>
+          <select id="transcriptionMode" class="form-control">
+            <option value="web-speech">Web Speech API (Free, Manual Speaker Tagging)</option>
+            <option value="deepgram">Deepgram (Paid, Auto Speaker Detection)</option>
+          </select>
+          <small class="help-text">
+            Web Speech API is free but requires manual speaker assignment. Deepgram costs ~$0.24/hour with automatic speaker detection.
+          </small>
+        </div>
+
+        <div class="form-group" id="deepgramApiKeyGroup" style="display: none;">
+          <label for="deepgramApiKey">Deepgram API Key</label>
+          <input type="password" id="deepgramApiKey" class="form-control" placeholder="Enter your Deepgram API key">
+          <small class="help-text">
+            Get your API key from <a href="https://console.deepgram.com/" target="_blank">Deepgram Console</a>.
+            Cost: ~$0.24/hour for nova-2 model with speaker diarization.
+          </small>
+        </div>
+
+        <div class="form-group">
+          <label for="maxSpeakers">Maximum Speakers</label>
+          <input type="number" id="maxSpeakers" class="form-control" min="2" max="20" value="10">
+          <small class="help-text">
+            Maximum number of speakers to detect (for Deepgram mode).
+          </small>
+        </div>
+      </div>
+
+      <!-- AI Configuration -->
+      <div class="settings-section">
+        <h2>AI Configuration</h2>
+
+        <div class="form-group">
+          <label for="aiMode">AI Mode</label>
+          <select id="aiMode" class="form-control">
+            <option value="manual">Manual (Click to Generate)</option>
+            <option value="auto">Auto (Automatic Triggers)</option>
+          </select>
+          <small class="help-text">
+            Manual mode generates AI responses when you click "Generate". Auto mode generates automatically based on triggers.
+          </small>
+        </div>
+
+        <div class="form-group" id="autoAiTriggerGroup" style="display: none;">
+          <label for="autoAiTrigger">Auto-Trigger Type</label>
+          <select id="autoAiTrigger" class="form-control">
+            <option value="interval">Time Interval</option>
+            <option value="turn">After N Turns</option>
+            <option value="pause">On Speech Pause</option>
+          </select>
+        </div>
+
+        <div class="form-group" id="autoAiIntervalGroup" style="display: none;">
+          <label for="autoAiInterval">Trigger Interval (seconds)</label>
+          <input type="number" id="autoAiInterval" class="form-control" min="30" max="300" value="60" step="10">
+          <small class="help-text">
+            Minimum 30 seconds to avoid API rate limits.
+          </small>
+        </div>
+      </div>
+
+      <!-- API Configuration -->
       <div class="settings-section">
         <h2>API Configuration</h2>
 
@@ -100,14 +209,6 @@
           <input type="password" id="apiKey" class="form-control" placeholder="Enter your Gemini API key">
           <small class="help-text">
             Get your API key from <a href="https://aistudio.google.com/app/apikey" target="_blank">Google AI Studio</a>
-          </small>
-        </div>
-
-        <div class="form-group">
-          <label for="customPrompt">Custom System Prompt (Optional)</label>
-          <textarea id="customPrompt" class="form-control" rows="6" placeholder="Leave empty to use default prompt..."></textarea>
-          <small class="help-text">
-            Customize how the AI responds. Leave empty to use the default meeting assistant prompt.
           </small>
         </div>
 
@@ -129,10 +230,97 @@
         <div class="settings-status" id="settingsStatus"></div>
       </div>
 
+      <!-- Custom Prompts -->
+      <div class="settings-section">
+        <h2>Custom Prompts</h2>
+
+        <div class="form-group">
+          <label for="customPrompt">Default System Prompt (Answer)</label>
+          <textarea id="customPrompt" class="form-control" rows="4" placeholder="Leave empty to use default prompt..."></textarea>
+          <small class="help-text">
+            Customize how the AI responds to questions. Leave empty to use the default meeting assistant prompt.
+          </small>
+        </div>
+
+        <div class="form-group">
+          <label for="autoAiPrompt">Auto-AI Prompt</label>
+          <textarea id="autoAiPrompt" class="form-control" rows="4" placeholder="Leave empty to use default prompt..."></textarea>
+          <small class="help-text">
+            Prompt for automatic AI generations. Leave empty to use the default prompt.
+          </small>
+        </div>
+
+        <div class="form-group">
+          <label for="summaryPrompt">Summary Prompt</label>
+          <textarea id="summaryPrompt" class="form-control" rows="4" placeholder="Leave empty to use default prompt..."></textarea>
+          <small class="help-text">
+            Customize the summary generation prompt.
+          </small>
+        </div>
+
+        <div class="form-group">
+          <label for="followUpPrompt">Follow-up Questions Prompt</label>
+          <textarea id="followUpPrompt" class="form-control" rows="4" placeholder="Leave empty to use default prompt..."></textarea>
+          <small class="help-text">
+            Customize the follow-up questions prompt.
+          </small>
+        </div>
+      </div>
+
+      <!-- Prompt Preview -->
       <div class="settings-section">
         <h2>Current Prompt Preview</h2>
         <div class="prompt-preview" id="promptPreview">
           Configure your settings to see the active prompt...
+        </div>
+      </div>
+    </div>
+
+    <!-- Speaker Management Modal -->
+    <div class="modal" id="speakerModal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>Manage Speakers</h3>
+          <button class="modal-close" id="closeSpeakerModal">&times;</button>
+        </div>
+        <div class="modal-body">
+          <div class="speakers-list" id="speakersList">
+            <!-- Speakers will be dynamically added here -->
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" id="closeSpeakerModalBtn">Close</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Export Modal -->
+    <div class="modal" id="exportModal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>Export Transcription</h3>
+          <button class="modal-close" id="closeExportModal">&times;</button>
+        </div>
+        <div class="modal-body">
+          <div class="form-group">
+            <label>Export Format</label>
+            <select id="exportFormat" class="form-control">
+              <option value="txt">Plain Text (.txt)</option>
+              <option value="json">JSON (.json)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Text Format (for TXT export)</label>
+            <select id="exportTextFormat" class="form-control">
+              <option value="flat">Flat (Speaker: Text)</option>
+              <option value="grouped">Grouped by Speaker</option>
+              <option value="turn-by-turn">Turn-by-Turn with Timestamps</option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" id="closeExportModalBtn">Cancel</button>
+          <button class="btn btn-primary" id="doExport">Export</button>
         </div>
       </div>
     </div>

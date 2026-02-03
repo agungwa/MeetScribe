@@ -10,7 +10,9 @@
     "sidePanel"
   ],
   "host_permissions": [
-    "https://generativelanguage.googleapis.com/*"
+    "https://generativelanguage.googleapis.com/*",
+    "https://*.deepgram.com/*",
+    "wss://*.deepgram.com/*"
   ],
   "action": {
     "default_icon": {
